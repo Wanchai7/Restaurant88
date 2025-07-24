@@ -5,6 +5,8 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { Op } = require('sequelize')
 
+const config = require('../config/auth.config')
+
 const authController = {};
 
 authController.signUp = async (req, res) => {
@@ -22,7 +24,7 @@ authController.signUp = async (req, res) => {
         return;
     })
 
-    const newUser = {username, name, email, password}
+    const newUser = {username, name, email, password: bcrypt.hashSync(password, 8)}
     User.create(newUser).then((user) => {
         // send roles in body [ADMIN]
         if(req.body.roles){
@@ -49,6 +51,50 @@ authController.signUp = async (req, res) => {
         }
     }).catch((error) => {
         res.status(500).send({ message: error.message || "Something error while registering a new user"})
+    })
+}
+
+authController.signIn = async (req, res) => {
+    const { username, password } = req.body
+    if(!username || !password) {
+        res.status(400).json({ message: "Username or Password are missing!" })
+        return;
+    }
+    
+    await User.findOne({ where: { username: username }})
+    .then((user) => {
+        if(!user){
+            res.status(404).json({ message: "User Not Found!"})
+        }
+
+        const passwordIsValid = bcrypt.compareSync(password, user.password)
+        if(!passwordIsValid) {
+            res.status(401).json({ message: "Password invalid!"})
+        }
+
+        // Valid User
+        const token = jwt.sign({ username: user.username }, config.secret, {
+            expiresIn: 86400, // 60sec * 60min * 24h = 86400
+        })
+
+        const authorities = [];
+        user.getRoles().then((roles) => {
+            for(let i = 0; i < roles.length; i++) {
+                authorities.push(`ROLES_${roles[i].name.toUpperCase()}`)
+            }
+            res.send({
+                token: token,
+                authorities: authorities,
+                userInfor: {
+                    name: user.name,
+                    email: user.email,
+                    username: user.username
+                }
+            })
+        })
+    })
+    .catch((error) => {
+        res.status(500).send({ message: error.message || 'Something error while signin'})
     })
 }
 
