@@ -3,7 +3,7 @@ import Navbar from '../components/Navbar'
 import Drop from '../components/Drop'
 import { useAuthContext } from '../context/AuthContext'
 import { useNavigate } from 'react-router'
-
+import RestaurantService from '../services/retaurant.service'
 
 const AddRestaurant = () => {
     const { user } = useAuthContext()
@@ -30,16 +30,14 @@ const AddRestaurant = () => {
     const handleSubmit = async () => {
         try {
             // async await 
-            const response = await fetch('http://localhost:5000/api/v1/restaurant', {
-                method: "POST",
-                body: JSON.stringify(restaurant),
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            })
-            
-            if (response.ok){
-                alert("Restaurant added successfully!")
+            const response = await RestaurantService.insertRestaurant(restaurant);
+
+            if (response.status === 200){
+                Swal.fire({
+                    title: "Add Restaurant",
+                    text: "Restaurant added successfully!",
+                    icon: "success",
+                })
                 setRestaurant({
                     name: '',
                     type: '',
@@ -47,7 +45,11 @@ const AddRestaurant = () => {
                 })
             }
         }catch(e){
-            console.log(e)
+            Swal.fire({
+                title: "Add Restaurants",
+                icon: "error",
+                text: error?.response?.data?.message || e.message
+            })
         }
     }
 

@@ -4,6 +4,7 @@ import Drop from '../components/Drop'
 import { useParams } from 'react-router'
 import { useAuthContext } from '../context/AuthContext'
 import { useNavigate } from 'react-router'
+import RestaurantService from '../services/retaurant.service'
 
 const Update = () => {
     const { user } = useAuthContext()
@@ -28,19 +29,35 @@ const Update = () => {
 
      //  2. Get Restaurant by ID
      useEffect(() => {
-        fetch(`http://localhost:5000/api/v1/restaurant/${id}`)
-            .then((res) => {
-                //  convert text to json format
-                return res.json();
-            })
-            .then((resp) => {
-                // save to state
-                setRestaurant(resp)
-            })
-            .catch((e) => {
-                // catch error
-                console.log(e.message)
-            })
+        const updateRestaurant = async (id) => {
+            try{
+                const resp = await RestaurantService.getRestaurantById(id)
+                if (resp.status === 200) {
+                    setRestaurant(resp.data)
+                }
+            }catch(error) {
+                Swal.fire({
+                    title: "Get All restaurants",
+                    icon: "error",
+                    text: error?.response?.data?.message || error.message
+                })
+            }
+        }
+        updateRestaurant(id)
+
+        // fetch(`http://localhost:5000/api/v1/restaurant/${id}`)
+        //     .then((res) => {
+        //         //  convert text to json format
+        //         return res.json();
+        //     })
+        //     .then((resp) => {
+        //         // save to state
+        //         setRestaurant(resp)
+        //     })
+        //     .catch((e) => {
+        //         // catch error
+        //         console.log(e.message)
+        //     })
     }, [id])
 
     const handleChange = (e) => {
@@ -52,15 +69,15 @@ const Update = () => {
     const handleSubmit = async () => {
         try {
             // async await
-            const response = await fetch(`http://localhost:5000/api/v1/restaurant/${id}`, {
-                method: "PUT",
-                body: JSON.stringify(restaurant),
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            })
-
-            if (response.ok) {
+            // const response = await fetch(`http://localhost:5000/api/v1/restaurant/${id}`, {
+            //     method: "PUT",
+            //     body: JSON.stringify(restaurant),
+            //     headers: {
+            //         "Content-Type": "application/json"
+            //     }
+            // })
+            const resp = await RestaurantService.editRestaurantById(id, restaurant)
+            if (response.status === 200) {
                 alert("Restaurant Updated successfully!")
                 setRestaurant({
                     name: '',

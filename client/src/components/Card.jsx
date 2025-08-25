@@ -1,22 +1,26 @@
 import React, { useState } from "react";
 
 import { useAuthContext } from '../context/AuthContext'
+import RestaurantService from '../services/retaurant.service'
 
 const Card = ({ id, name, type, imageUrl }) => {
   const { user } = useAuthContext()
-
   // const role = user?.authorities
   // console.log(role.includes('ROLES_ADMIN'))
 
   const deleted = async (id) => {
     try {
       // async await
-      const response = await fetch(`http://localhost:5000/api/v1/restaurant/${id}`, {
-        method: "DELETE",
-      });
-      if (response.ok) {
+      const response = await RestaurantService.deleteRestaurant(id)
+      if (response.status === 200) {
         // alert("Restaurant Deleted successfully!");
-        window.location.reload();
+        Swal.fire({
+          title: "Deleted Restaurant",
+          text: "Restaurant Del successfully!",
+          icon: "success",
+        }).then(() => {
+          window.location.reload();
+        })
       }
     } catch (e) {
       console.log(e);
