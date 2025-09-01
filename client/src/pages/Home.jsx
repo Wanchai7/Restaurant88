@@ -48,8 +48,6 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-base-100">
       {/* Navbar */}
-      <Navbar />
-
       {/* Hero Section */}
       <div className="hero bg-gradient-to-r from-amber-100 via-orange-100 to-amber-50 py-12 shadow-sm">
         <div className="hero-content text-center">
