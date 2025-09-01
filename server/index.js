@@ -12,7 +12,7 @@ const cors = require("cors");
 app.use(
   cors({
     // origin ต้นทางมาจากไหนได้บ้าง
-    origin: ["http://localhost:5173", "127.0.0.1:5173",FRONTEND_URL],
+    origin: ["http://localhost:5173", "127.0.0.1:5173", FRONTEND_URL],
     // อุญาติให้ ใช้ method ไรบ้าง หรือ service
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization", "x-access-token"],
@@ -30,10 +30,10 @@ const initRole = () => {
   role.create({ id: 3, name: "admin" });
 };
 
-// db.sequelize.sync({ force: true }).then(() => {
-//   initRole();
-//   console.log("Drop and Sync");
-// });
+db.sequelize.sync({ force: true }).then(() => {
+  initRole();
+  console.log("Drop and Sync");
+});
 
 // แปลง จาก string(text) เป็น json
 app.use(express.json());
