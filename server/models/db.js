@@ -1,16 +1,17 @@
 const { Sequelize } = require("sequelize");
 const dbConfig = require("../config//db.config");
 
-const sequelize = new Sequelize("database_name", "username", "password", {
-  host: "your-database-host",
-  dialect: "postgres",
+const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
+  host: dbConfig.HOST,
+  port: dbConfig.DBPORT,
+  dialect: dbConfig.DIALECT,
+  logging: false,
   dialectOptions: {
     ssl: {
-      require: true,
-      rejectUnauthorized: false, // เพื่อหลีกเลี่ยงปัญหาจากใบรับรองที่ไม่เป็นทางการ
+      required:true,
+      rejectUnauthorized: false,
     },
-  },
-  // ตัวเลือกอื่นๆ
+  }
 });
 
 testConnection = async () => {
